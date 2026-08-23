@@ -10,6 +10,13 @@
 <label><input type="checkbox" name="updates" {% if lic.updates_allowed %}checked{% endif %}> Permitir actualizaciones</label>
 <button>Guardar cambios</button></form>
 
+<h2>💵 Pago manual / Transferencia</h2>
+<form method="post" action="{{url_for('admin_manual_payment',license_id=lic.id)}}" class="form">
+<select name="method"><option>Transferencia</option><option>Efectivo</option><option>Depósito</option><option>Otro</option></select>
+<input name="amount" type="number" min="0" value="{{lic.price}}" placeholder="Monto pagado">
+<input name="days" type="number" min="1" value="30" placeholder="Días a activar o agregar">
+<button>Registrar pago y activar licencia</button>
+</form>
 <h2>➕ Agregar días</h2>
 <form method="post" action="{{url_for('admin_add_days',license_id=lic.id)}}" class="form">
 <input name="days" type="number" min="1" value="30" placeholder="Cantidad de días">

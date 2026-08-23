@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>✏️ Editar plan</h1>
+<div class="card">
+<form method="post" class="form">
+  <label>Nombre</label>
+  <input name="name" value="{{ plan.name }}" required>
+
+  <label>Precio</label>
+  <input name="price" type="number" min="0" value="{{ plan.price }}" required>
+
+  <label>Duración en días</label>
+  <input name="duration" type="number" min="1" value="{{ plan.duration_days }}" required>
+
+  <label>Cantidad de equipos</label>
+  <input name="machines" type="number" min="1" value="{{ plan.machines }}" required>
+
+  <label>Funciones incluidas</label>
+  <input name="features" value="{{ plan.features or '' }}">
+
+  <label><input type="checkbox" name="updates" {% if plan.updates %}checked{% endif %}> Permitir actualizaciones</label>
+  <label><input type="checkbox" name="active" {% if plan.active %}checked{% endif %}> Plan activo</label>
+
+  <button type="submit">💾 Guardar cambios</button>
+  <a class="btn" href="{{ url_for('admin_plans') }}">Cancelar</a>
+</form>
+</div>
+{% endblock %}

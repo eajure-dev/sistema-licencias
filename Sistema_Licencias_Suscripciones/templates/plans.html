@@ -1,1 +1,57 @@
-{% extends "base.html" %}{% block content %}<h1>Planes y precios</h1><form method="post" class="form compact"><input name="name" placeholder="Nombre del plan" required><input name="price" type="number" placeholder="Precio CLP" required><input name="duration" type="number" value="30" placeholder="Días" required><input name="machines" type="number" value="1" placeholder="Equipos" required><input name="features" placeholder="Funciones incluidas"><label><input type="checkbox" name="updates" checked> Actualizaciones</label><button>Crear plan</button></form><table><tr><th>Plan</th><th>Precio</th><th>Días</th><th>Equipos</th><th>Updates</th></tr>{% for p in plans %}<tr><td>{{p.name}}</td><td>${{p.price}}</td><td>{{p.duration_days}}</td><td>{{p.machines}}</td><td>{{'Sí' if p.updates else 'No'}}</td></tr>{% endfor %}</table>{% endblock %}
+{% extends "base.html" %}
+{% block content %}
+<h1>Administrar planes</h1>
+
+<div class="card">
+  <h2>➕ Crear nuevo plan</h2>
+  <form method="post" class="form">
+    <input name="name" placeholder="Nombre del plan: Mensual, Trimestral, Anual..." required>
+    <input name="price" type="number" min="0" placeholder="Precio en pesos CLP" required>
+    <input name="duration" type="number" min="1" value="30" placeholder="Duración en días" required>
+    <input name="machines" type="number" min="1" value="1" placeholder="Cantidad de equipos" required>
+    <input name="features" placeholder="Beneficios o funciones incluidas">
+    <label><input type="checkbox" name="updates" checked> Permitir actualizaciones</label>
+    <button type="submit">Crear plan</button>
+  </form>
+</div>
+
+<div class="card">
+<h2>📋 Mis planes</h2>
+{% if plans %}
+<table>
+  <tr>
+    <th>Plan</th>
+    <th>Precio</th>
+    <th>Días</th>
+    <th>Equipos</th>
+    <th>Actualizaciones</th>
+    <th>Estado</th>
+    <th>Opciones</th>
+  </tr>
+  {% for p in plans %}
+  <tr>
+    <td>{{ p.name }}</td>
+    <td>${{ p.price }}</td>
+    <td>{{ p.duration_days }}</td>
+    <td>{{ p.machines }}</td>
+    <td>{{ "Sí" if p.updates else "No" }}</td>
+    <td>{{ "Activo" if p.active else "Desactivado" }}</td>
+    <td>
+      <a class="btn" href="{{ url_for('admin_plan_edit', plan_id=p.id) }}">✏️ Editar</a>
+
+      <form method="post" action="{{ url_for('admin_plan_toggle', plan_id=p.id) }}" style="display:inline">
+        <button type="submit">{{ "Desactivar" if p.active else "Activar" }}</button>
+      </form>
+
+      <form method="post" action="{{ url_for('admin_plan_delete', plan_id=p.id) }}" style="display:inline" onsubmit="return confirm('¿Seguro que quieres eliminar este plan? Esta acción no se puede deshacer.')">
+        <button type="submit">🗑️ Eliminar</button>
+      </form>
+    </td>
+  </tr>
+  {% endfor %}
+</table>
+{% else %}
+<p>No tienes planes creados todavía.</p>
+{% endif %}
+</div>
+{% endblock %}
