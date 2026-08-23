@@ -434,6 +434,24 @@ def admin_plan_toggle(plan_id):
     return redirect(url_for("admin_plans"))
 
 
+@app.route("/admin/plan/<int:plan_id>/delete", methods=["POST"])
+@login_required
+@admin_required
+def admin_plan_delete(plan_id):
+    plan = q("SELECT * FROM plans WHERE id=?", (plan_id,), one=True)
+    if not plan:
+        return "Plan no encontrado", 404
+
+    # No borrar un plan que ya está siendo usado por licencias existentes.
+    used = q("SELECT COUNT(*) n FROM licenses WHERE plan_id=?", (plan_id,), one=True)["n"]
+    if used:
+        flash("Este plan ya tiene licencias asociadas. Puedes editarlo o desactivarlo, pero no eliminarlo.", "warning")
+        return redirect(url_for("admin_plans"))
+
+    execute("DELETE FROM plans WHERE id=?", (plan_id,))
+    flash("Plan eliminado correctamente.", "success")
+    return redirect(url_for("admin_plans"))
+
 @app.route("/admin/invite", methods=["GET", "POST"])
 @login_required
 @admin_required
