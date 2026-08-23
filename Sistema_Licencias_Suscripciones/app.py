@@ -389,11 +389,49 @@ def dashboard():
 @admin_required
 def admin_plans():
     if request.method == "POST":
-        execute("INSERT INTO plans(name,price,duration_days,machines,updates,features,active) VALUES(?,?,?,?,?,?,1)",
-                (request.form["name"], int(request.form["price"]), int(request.form["duration"]),
-                 int(request.form["machines"]), 1 if request.form.get("updates") else 0, request.form.get("features","")))
-        flash("Plan creado.", "success")
+        name = request.form["name"].strip()
+        price = max(0, int(request.form["price"] or 0))
+        duration = max(1, int(request.form["duration"] or 30))
+        machines = max(1, int(request.form["machines"] or 1))
+        execute("""INSERT INTO plans(name,price,duration_days,machines,updates,features,active)
+                   VALUES(?,?,?,?,?,?,1)""",
+                (name, price, duration, machines,
+                 1 if request.form.get("updates") else 0,
+                 request.form.get("features","").strip()))
+        flash("Plan creado correctamente.", "success")
+        return redirect(url_for("admin_plans"))
     return render_template("plans.html", plans=q("SELECT * FROM plans ORDER BY id DESC"))
+
+@app.route("/admin/plan/<int:plan_id>", methods=["GET","POST"])
+@login_required
+@admin_required
+def admin_plan_edit(plan_id):
+    plan = q("SELECT * FROM plans WHERE id=?", (plan_id,), one=True)
+    if not plan: return "Plan no encontrado", 404
+    if request.method == "POST":
+        execute("""UPDATE plans SET name=?,price=?,duration_days=?,machines=?,updates=?,features=?,active=?
+                   WHERE id=?""",
+                (request.form["name"].strip(),
+                 max(0, int(request.form["price"] or 0)),
+                 max(1, int(request.form["duration"] or 30)),
+                 max(1, int(request.form["machines"] or 1)),
+                 1 if request.form.get("updates") else 0,
+                 request.form.get("features","").strip(),
+                 1 if request.form.get("active") else 0,
+                 plan_id))
+        flash("Plan actualizado.", "success")
+        return redirect(url_for("admin_plans"))
+    return render_template("plan_edit.html", plan=plan)
+
+@app.route("/admin/plan/<int:plan_id>/toggle", methods=["POST"])
+@login_required
+@admin_required
+def admin_plan_toggle(plan_id):
+    plan = q("SELECT * FROM plans WHERE id=?", (plan_id,), one=True)
+    if not plan: return "Plan no encontrado", 404
+    execute("UPDATE plans SET active=? WHERE id=?", (0 if plan["active"] else 1, plan_id))
+    flash("Estado del plan actualizado.", "success")
+    return redirect(url_for("admin_plans"))
 
 
 @app.route("/admin/invite", methods=["GET", "POST"])
@@ -486,6 +524,32 @@ def admin_license(license_id):
         return redirect(url_for("admin_license", license_id=license_id))
     return render_template("license_edit.html", lic=lic)
 
+
+@app.route("/admin/license/<int:license_id>/manual-payment", methods=["POST"])
+@login_required
+@admin_required
+def admin_manual_payment(license_id):
+    lic = q("SELECT * FROM licenses WHERE id=?", (license_id,), one=True)
+    if not lic: return "Licencia no encontrada", 404
+    days = max(1, int(request.form["days"] or 30))
+    amount = max(0, int(request.form["amount"] or 0))
+    method = request.form.get("method","Transferencia").strip() or "Manual"
+    base = now()
+    if lic["expires_at"]:
+        try:
+            current_expiry = datetime.strptime(lic["expires_at"], "%Y-%m-%d %H:%M:%S")
+            if current_expiry > base: base = current_expiry
+        except ValueError: pass
+    new_expiry = base + timedelta(days=days)
+    execute("""UPDATE licenses SET status='active', starts_at=COALESCE(starts_at,?),
+               expires_at=?, price=? WHERE id=?""",
+            (iso(now()), iso(new_expiry), amount, license_id))
+    ref = "MANUAL-" + uuid.uuid4().hex[:12].upper()
+    execute("""INSERT INTO payments(user_id,license_id,amount,provider,reference,status,created_at,paid_at)
+               VALUES(?,?,?,?,?,'paid',?,?)""",
+            (lic["user_id"], license_id, amount, method, ref, iso(now()), iso(now())))
+    flash(f"Pago manual registrado y licencia activada por {days} días.", "success")
+    return redirect(url_for("admin_license", license_id=license_id))
 
 @app.route("/admin/license/<int:license_id>/add-days", methods=["POST"])
 @login_required
