@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card">
+{% if ok %}
+  <h1>✅ Pago confirmado</h1>
+  <p>Tu licencia fue activada correctamente.</p>
+  <p><b>Código de activación:</b> <code>{{license.code}}</code></p>
+  <p><b>Vence:</b> {{license.expires_at}}</p>
+  <p>También enviamos las instrucciones y el código al correo registrado.</p>
+  <a class="btn" href="{{url_for('login')}}">Ingresar a mi cuenta</a>
+{% else %}
+  <h1>⚠️ No se completó el pago</h1>
+  <p>{{message}}</p>
+  <a class="btn" href="{{url_for('index')}}">Volver</a>
+{% endif %}
+</div>
+{% endblock %}

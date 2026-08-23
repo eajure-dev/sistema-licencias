@@ -1,0 +1,12 @@
+{% extends "base.html" %}{% block content %}
+<h1>🎁 Invitar cliente gratis</h1>
+<form method="post" class="form">
+<input name="name" placeholder="Nombre del cliente" required>
+<input name="business" placeholder="Nombre del negocio">
+<input type="email" name="email" placeholder="Correo electrónico" required>
+<select name="plan_id">{% for p in plans %}<option value="{{p.id}}">{{p.name}}</option>{% endfor %}</select>
+<input type="number" name="free_days" value="30" min="1" placeholder="Cantidad de días gratis" required>
+<button>Crear licencia y enviar invitación</button>
+</form>
+<p class="muted">Puedes indicar cualquier cantidad de días: 7, 30, 90, 365 o la cantidad que quieras.</p>
+{% endblock %}

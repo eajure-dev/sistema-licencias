@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card">
+  <h1>Finalizar pago</h1>
+  <p><b>Cliente:</b> {{payment.name}}</p>
+  <p><b>Plan:</b> {{payment.plan_name}}</p>
+  <p class="price">${{ "{:,}".format(payment.amount).replace(",",".") }} CLP</p>
+  <p>Referencia: <code>{{payment.reference}}</code></p>
+  {% if webpay_ready %}
+    <p>Serás redirigido al sitio seguro de Webpay para realizar el pago.</p>
+    <form action="{{webpay_url}}" method="POST">
+      <input type="hidden" name="token_ws" value="{{token}}">
+      <button type="submit">Pagar con Webpay</button>
+    </form>
+  {% else %}
+    <div class="flash warning">
+      Webpay todavía no está configurado. {{webpay_error}}
+    </div>
+    <p>El administrador debe ingresar las credenciales de Transbank y la URL pública del sistema.</p>
+  {% endif %}
+</div>
+{% endblock %}

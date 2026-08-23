@@ -1,0 +1,18 @@
+{% extends "base.html" %}{% block content %}
+<h1>Licencia — {{lic.business or lic.name}}</h1>
+<p>Correo: {{lic.email}}</p><p>Código: <code>{{lic.code}}</code></p>
+<form method="post" class="form">
+<select name="status"><option {% if lic.status=='active' %}selected{% endif %}>active</option><option {% if lic.status=='pending' %}selected{% endif %}>pending</option><option {% if lic.status=='suspended' %}selected{% endif %}>suspended</option></select>
+<input name="price" type="number" value="{{lic.price}}">
+<input name="expires_at" type="datetime-local" value="{{lic.expires_at.replace(' ','T') if lic.expires_at else ''}}">
+<input name="machines" type="number" value="{{lic.machines_allowed}}">
+<input name="version_limit" value="{{lic.version_limit}}" placeholder="Versión máxima o vacío">
+<label><input type="checkbox" name="updates" {% if lic.updates_allowed %}checked{% endif %}> Permitir actualizaciones</label>
+<button>Guardar cambios</button></form>
+
+<h2>➕ Agregar días</h2>
+<form method="post" action="{{url_for('admin_add_days',license_id=lic.id)}}" class="form">
+<input name="days" type="number" min="1" value="30" placeholder="Cantidad de días">
+<button>Agregar días a la licencia</button>
+</form>
+{% endblock %}

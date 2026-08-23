@@ -1,0 +1,6 @@
+{% extends "base.html" %}{% block content %}
+<h1>Mi cuenta</h1>
+{% for l in licenses %}<div class="card"><h3>{{l.plan}}</h3><p>Estado: <b>{{l.status}}</b></p><p>Vence: {{l.expires_at}}</p><p>Código: <code>{{l.code}}</code></p></div>{% endfor %}
+<div class="card"><h2>⬇️ Descargar Ventas POS</h2><p>Descarga la versión publicada para tu cuenta.</p><a class="btn" href="{{url_for('client_download_program')}}">Descargar programa</a></div>
+<h2>Actualizaciones</h2>{% for v in versions %}<div class="card"><b>Versión {{v.version}}</b><p>{{v.notes}}</p>{% if v.filename %}<a class="btn" href="{{url_for('download',filename=v.filename)}}">Descargar actualización</a>{% endif %}</div>{% endfor %}
+{% endblock %}

@@ -1,0 +1,7 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{% block title %}Licencias{% endblock %}</title>
+<link rel="stylesheet" href="{{ url_for('static',filename='style.css') }}"></head>
+<body><nav><a href="{{url_for('index')}}">Sistema POS</a>{% if current_user.is_authenticated %}
+<a href="{{url_for('dashboard')}}">Panel</a>{% if current_user.is_admin %}<a href="{{url_for('admin_clients')}}">Clientes</a><a href="{{url_for('admin_invite')}}">🎁 Invitar gratis</a><a href="{{url_for('admin_plans')}}">Planes</a><a href="{{url_for('admin_versions')}}">Programa y actualizaciones</a><a href="{{url_for('admin_settings')}}">Configuración</a>{% endif %}<a href="{{url_for('logout')}}">Salir</a>{% else %}<a href="{{url_for('login')}}">Ingresar</a>{% endif %}</nav>
+<main>{% with m=get_flashed_messages(with_categories=true) %}{% for c,x in m %}<div class="flash {{c}}">{{x}}</div>{% endfor %}{% endwith %}{% block content %}{% endblock %}</main></body></html>

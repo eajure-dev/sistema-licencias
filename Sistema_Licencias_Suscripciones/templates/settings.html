@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Configuración</h1>
+
+<h2>Webpay / Transbank</h2>
+<form method="post" class="form">
+  <select name="webpay_environment">
+    <option value="integration" {% if values.get('webpay_environment','integration') == 'integration' %}selected{% endif %}>Integración / Pruebas</option>
+    <option value="production" {% if values.get('webpay_environment') == 'production' %}selected{% endif %}>Producción</option>
+  </select>
+  <input name="webpay_commerce_code" value="{{values.get('webpay_commerce_code','')}}" placeholder="Código de comercio Webpay">
+  <input name="webpay_api_key" type="password" value="{{values.get('webpay_api_key','')}}" placeholder="API Key secreta">
+  <input name="public_base_url" value="{{values.get('public_base_url','')}}" placeholder="https://tudominio.cl">
+  <p class="muted">La URL pública debe usar HTTPS en producción y permitir que Transbank regrese al sistema.</p>
+
+  <h2>Correo automático</h2>
+  <input name="smtp_host" value="{{values.get('smtp_host','')}}" placeholder="Servidor SMTP">
+  <input name="smtp_port" value="{{values.get('smtp_port','587')}}" placeholder="Puerto">
+  <input name="smtp_user" value="{{values.get('smtp_user','')}}" placeholder="Usuario SMTP">
+  <input name="smtp_password" type="password" value="{{values.get('smtp_password','')}}" placeholder="Contraseña SMTP">
+  <input name="smtp_from" value="{{values.get('smtp_from','')}}" placeholder="Correo remitente">
+  <button>Guardar configuración</button>
+</form>
+{% endblock %}

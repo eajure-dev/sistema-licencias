@@ -1,0 +1,12 @@
+{% extends "base.html" %}{% block content %}
+<h1>Programa y actualizaciones</h1>
+<form method="post" enctype="multipart/form-data" class="form">
+<input name="version" placeholder="Ej. 2.1.0" required>
+<select name="channel"><option value="stable">Estable</option><option value="beta">Beta</option></select>
+<textarea name="notes" placeholder="Cambios de la versión"></textarea>
+<input type="file" name="file" required>
+<label><input type="checkbox" name="set_as_program"> Usar este archivo como descarga principal del programa</label>
+<button>Publicar archivo</button>
+</form>
+<h2>Historial</h2>{% for v in versions %}<div class="card"><b>{{v.version}}</b> — {{v.channel}}<p>{{v.notes}}</p></div>{% endfor %}
+{% endblock %}
